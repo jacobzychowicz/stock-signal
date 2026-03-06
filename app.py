@@ -9,6 +9,7 @@ from streamlit_searchbox import st_searchbox
 from stock_news.config import MAX_RECORDS, MIN_KEYWORD_LEN
 from stock_news.gdelt import fetch_articles
 from stock_news.keywords import normalize_keywords
+from stock_news.sentiment import aggregate_sentiment, score_articles
 from stock_news.symbols import expand_symbol_to_company_name
 from stock_news.ticker_list import filter_tickers, load_ticker_list_from_source
 
@@ -99,6 +100,7 @@ with st.sidebar:
 
     english_only = st.toggle("English only", value=True)
     auto_expand = st.toggle("Auto-expand short tickers", value=True, help="If GDELT complains the phrase is too short, retry using the Yahoo Finance company name.")
+    show_sentiment = st.toggle("Show sentiment (VADER)", value=True, help="Score each headline with VADER; show sentiment column and aggregate.")
 
     run = st.button("Search", type="primary", use_container_width=True)
 
@@ -160,6 +162,13 @@ if not articles:
     st.warning("No articles found. Try increasing **Days back**, widening keywords, or using the full company name.")
     st.stop()
 
+if show_sentiment:
+    try:
+        score_articles(articles, title_key="title")
+    except RuntimeError as e:
+        st.warning(f"Sentiment skipped: {e}")
+        show_sentiment = False
+
 df = pd.DataFrame(articles)
 df = df.rename(
     columns={
@@ -173,7 +182,25 @@ df = df.rename(
 )
 
 preferred = ["seen_date", "source", "domain", "lang", "title", "url"]
+if show_sentiment and "sentiment" in df.columns:
+    preferred.append("sentiment")
+    if "sentiment_compound" in df.columns:
+        preferred.append("sentiment_compound")
 df = df[[c for c in preferred if c in df.columns]]
+
+if show_sentiment:
+    agg = aggregate_sentiment(articles)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Articles", f"{len(articles)}")
+    col2.metric("Days back", f"{int(days)}")
+    col3.metric("Avg sentiment", f"{agg['mean_compound']:.2f}")
+    col4.metric("Updated", datetime.now().strftime("%Y-%m-%d %H:%M"))
+    st.caption(f"Sentiment: {agg['positive']} positive, {agg['neutral']} neutral, {agg['negative']} negative (VADER on headlines)")
+else:
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Articles", f"{len(articles)}")
+    col2.metric("Days back", f"{int(days)}")
+    col3.metric("Updated", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
 st.dataframe(
     df,
@@ -186,6 +213,14 @@ st.dataframe(
         "source": st.column_config.TextColumn("Source"),
         "domain": st.column_config.TextColumn("Domain"),
         "lang": st.column_config.TextColumn("Lang", width="small"),
+        **(
+            {
+                "sentiment": st.column_config.TextColumn("Sentiment", width="small"),
+                "sentiment_compound": st.column_config.NumberColumn("Compound", format="%.2f", width="small"),
+            }
+            if show_sentiment and "sentiment" in df.columns
+            else {}
+        ),
     },
 )
 

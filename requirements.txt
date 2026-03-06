@@ -2,4 +2,5 @@ requests>=2.31
 streamlit>=1.31
 pandas>=2.1
 streamlit-searchbox>=0.1.20
+vaderSentiment>=3.3
 
