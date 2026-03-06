@@ -4,11 +4,13 @@ from datetime import datetime
 
 import pandas as pd
 import streamlit as st
+from streamlit_searchbox import st_searchbox
 
 from stock_news.config import MAX_RECORDS, MIN_KEYWORD_LEN
 from stock_news.gdelt import fetch_articles
 from stock_news.keywords import normalize_keywords
 from stock_news.symbols import expand_symbol_to_company_name
+from stock_news.ticker_list import filter_tickers, load_ticker_list_from_source
 
 
 st.set_page_config(
@@ -24,6 +26,12 @@ def _parse_keywords(text: str) -> list[str]:
         return []
     # Allow comma-separated entry in one box
     return [x.strip() for x in text.split(",") if x.strip()]
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def _ticker_list() -> list[tuple[str, str]]:
+    """Load full ticker list from CSV (NASDAQ listings); fallback to built-in list on failure."""
+    return load_ticker_list_from_source()
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -59,9 +67,28 @@ st.title("Stock News")
 st.caption("Search recent coverage via the GDELT 2.1 Doc API. English-only by default.")
 
 
+def _ticker_search(searchterm: str) -> list[tuple[str, str]]:
+    """Return (display_label, value) for streamlit-searchbox; value = symbol for GDELT."""
+    if not searchterm or len(searchterm.strip()) < 2:
+        return []
+    tickers = _ticker_list()
+    matches = filter_tickers(tickers, searchterm.strip(), limit=50)
+    return [(f"{name} ({sym})", sym) for sym, name in matches]
+
+
 with st.sidebar:
     st.subheader("Search")
-    symbol = st.text_input("Ticker or company", value="MSFT", help='Examples: "MSFT", "NVIDIA", "Bank of America"')
+    symbol = st_searchbox(
+        _ticker_search,
+        key="ticker_searchbox",
+        label="Ticker or company name",
+        placeholder="e.g. AAPL, NVIDIA, Bank of America",
+        default="MSFT",
+        default_searchterm="MSFT",
+        default_use_searchterm=True,
+        help="Type to search 5,000+ NASDAQ symbols; pick from dropdown or use your text.",
+    )
+    symbol = (symbol or "").strip()
     keyword_text = st.text_input("Keywords (comma separated)", value="guidance, investigation")
 
     col_a, col_b = st.columns(2)
@@ -76,7 +103,7 @@ with st.sidebar:
     run = st.button("Search", type="primary", use_container_width=True)
 
     st.divider()
-    st.caption(f"Keywords shorter than {MIN_KEYWORD_LEN} characters are ignored (GDELT restriction).")
+    st.caption(f"Ticker list: NASDAQ listings (refreshed daily). Keywords &lt;{MIN_KEYWORD_LEN} chars ignored (GDELT).")
 
 
 if not run:

@@ -3,6 +3,43 @@ from __future__ import annotations
 from .config import YAHOO_SEARCH_URL
 
 
+def search_symbols(query: str, limit: int = 10) -> list[tuple[str, str]]:
+    """
+    Search Yahoo Finance for tickers/companies matching the query.
+    Returns list of (symbol, display_name) for autocomplete/dropdowns.
+    """
+    q = (query or "").strip()
+    if not q or len(q) < 2:
+        return []
+
+    try:
+        import requests  # type: ignore
+    except ModuleNotFoundError:
+        return []
+
+    try:
+        resp = requests.get(
+            YAHOO_SEARCH_URL,
+            params={"q": q, "quotesCount": min(limit, 20), "newsCount": 0},
+            timeout=5,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception:
+        return []
+
+    results: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for quote in data.get("quotes", []):
+        sym = (quote.get("symbol") or "").strip().upper()
+        if not sym or sym in seen:
+            continue
+        seen.add(sym)
+        name = (quote.get("longname") or quote.get("shortname") or sym) or sym
+        results.append((sym, str(name).strip()))
+    return results[:limit]
+
+
 def looks_like_ticker(symbol: str) -> bool:
     """
     Heuristic: short, uppercase-ish, no spaces. Allows dots/slashes for tickers like BRK.B.
