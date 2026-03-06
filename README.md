@@ -1,13 +1,19 @@
 # Stock-News (GDELT)
 
-CLI tool that pulls recent news about a stock/company from the GDELT 2.1 Doc API, filters to English by default, and lists matching articles. I will be adding an interface, and other tools in the future.
+CLI + web UI that pulls recent news about a stock/company from the GDELT 2.1 Doc API, filters to English by default, and lists matching articles.
 
 ## Quick start (PowerShell)
 ```powershell
 cd Stock-News
 python -m venv .venv    # optional
 .venv\Scripts\activate  # if you created a venv
+pip install -r requirements.txt
 python main.py MSFT -k "guidance, investigation" -d 5 -l 40
+```
+
+## Web interface (Streamlit)
+```powershell
+streamlit run app.py
 ```
 
 More examples:
