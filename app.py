@@ -21,6 +21,26 @@ st.set_page_config(
 )
 
 
+def _format_seen_date(raw: str | None) -> str:
+    """Convert GDELT seendate (e.g. 20260309T184500Z) to human-readable."""
+    if not raw or not isinstance(raw, str):
+        return raw or ""
+    s = raw.strip()
+    if len(s) < 8:
+        return raw
+    try:
+        # YYYYMMDD or YYYYMMDDTHHMMSSZ
+        y, m, d = int(s[:4]), int(s[4:6]), int(s[6:8])
+        if "T" in s and len(s) >= 15:
+            h, i, sec = int(s[9:11]), int(s[11:13]), int(s[13:15])
+            dt = datetime(y, m, d, h, i, sec)
+            return dt.strftime("%b %d, %Y %I:%M %p")
+        dt = datetime(y, m, d)
+        return dt.strftime("%b %d, %Y")
+    except (ValueError, TypeError):
+        return raw
+
+
 def _parse_keywords(text: str) -> list[str]:
     text = (text or "").strip()
     if not text:
@@ -213,6 +233,9 @@ if show_sentiment and "sentiment" in df.columns:
     if "sentiment_compound" in df.columns:
         preferred.append("sentiment_compound")
 df = df[[c for c in preferred if c in df.columns]]
+
+if "seen_date" in df.columns:
+    df["seen_date"] = df["seen_date"].map(_format_seen_date)
 
 if show_sentiment:
     agg = aggregate_sentiment(articles)
