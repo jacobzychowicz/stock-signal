@@ -227,15 +227,21 @@ df = df.rename(
     }
 )
 
-preferred = ["seen_date", "source", "domain", "lang", "title", "url"]
+# Order: date, title, then compact meta, then link — reduces horizontal scroll
+preferred = ["seen_date", "title", "source", "domain", "lang"]
 if show_sentiment and "sentiment" in df.columns:
     preferred.append("sentiment")
     if "sentiment_compound" in df.columns:
         preferred.append("sentiment_compound")
+preferred.append("url")
 df = df[[c for c in preferred if c in df.columns]]
 
 if "seen_date" in df.columns:
     df["seen_date"] = df["seen_date"].map(_format_seen_date)
+# Shorten domain for table fit (strip protocol, truncate with ellipsis)
+if "domain" in df.columns:
+    dom = df["domain"].astype(str).str.replace(r"^https?://", "", regex=True)
+    df["domain"] = dom.where(dom.str.len() <= 26, dom.str[:24] + "…")
 
 if show_sentiment:
     agg = aggregate_sentiment(articles)
@@ -256,12 +262,12 @@ st.dataframe(
     use_container_width=True,
     hide_index=True,
     column_config={
-        "url": st.column_config.LinkColumn("Link"),
-        "title": st.column_config.TextColumn("Title", width="large"),
-        "seen_date": st.column_config.TextColumn("Seen date"),
-        "source": st.column_config.TextColumn("Source"),
-        "domain": st.column_config.TextColumn("Domain"),
+        "seen_date": st.column_config.TextColumn("Date", width="small"),
+        "title": st.column_config.TextColumn("Title", width="medium"),
+        "source": st.column_config.TextColumn("Source", width="small"),
+        "domain": st.column_config.TextColumn("Domain", width="small"),
         "lang": st.column_config.TextColumn("Lang", width="small"),
+        "url": st.column_config.LinkColumn("Link", width="small"),
         **(
             {
                 "sentiment": st.column_config.TextColumn("Sentiment", width="small"),
