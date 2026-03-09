@@ -53,7 +53,7 @@ def fetch_articles(
         params["startdatetime"] = start.strftime("%Y%m%d%H%M%S")
 
     headers = {
-        "User-Agent": "stock-news (streamlit; educational) - rate-limit friendly",
+        "User-Agent": "StockSignal (streamlit; educational) - rate-limit friendly",
         "Accept": "application/json,text/plain,*/*",
     }
 

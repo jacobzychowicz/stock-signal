@@ -15,7 +15,7 @@ from stock_news.ticker_list import filter_tickers, load_ticker_list_from_source
 
 
 st.set_page_config(
-    page_title="Stock News",
+    page_title="StockSignal",
     page_icon="📰",
     layout="wide",
 )
@@ -84,7 +84,7 @@ st.markdown(
 )
 
 
-st.title("Stock News")
+st.title("StockSignal")
 st.caption("Search recent coverage via the GDELT 2.1 Doc API. English-only by default.")
 
 
