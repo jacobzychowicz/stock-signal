@@ -70,26 +70,40 @@ st.caption("Search recent coverage via the GDELT 2.1 Doc API. English-only by de
 
 def _ticker_search(searchterm: str) -> list[tuple[str, str]]:
     """Return (display_label, value) for streamlit-searchbox; value = symbol for GDELT."""
-    if not searchterm or len(searchterm.strip()) < 2:
+    # Track the raw text the user is typing so we can restore it after reruns/clears
+    cleaned = (searchterm or "").strip()
+    st.session_state["ticker_searchterm"] = cleaned
+
+    if len(cleaned) < 2:
         return []
+
     tickers = _ticker_list()
-    matches = filter_tickers(tickers, searchterm.strip(), limit=50)
+    matches = filter_tickers(tickers, cleaned, limit=50)
     return [(f"{name} ({sym})", sym) for sym, name in matches]
 
 
 with st.sidebar:
     st.subheader("Search")
-    symbol = st_searchbox(
+    # Use session_state so the box doesn't reset while typing or after clearing
+    last_searchterm = st.session_state.get("ticker_searchterm", "MSFT")
+    last_symbol = st.session_state.get("ticker_symbol", last_searchterm)
+
+    selected = st_searchbox(
         _ticker_search,
         key="ticker_searchbox",
         label="Ticker or company name",
         placeholder="e.g. AAPL, NVIDIA, Bank of America",
-        default="MSFT",
-        default_searchterm="MSFT",
+        default=last_symbol,
+        default_searchterm=last_searchterm,
         default_use_searchterm=True,
-        help="Type to search 5,000+ NASDAQ symbols; pick from dropdown or use your text.",
+        help="Type to search 5,000+ NASDAQ symbols; pick from dropdown or just press Enter to use what you typed.",
     )
-    symbol = (symbol or "").strip()
+    symbol = (selected or "").strip()
+    # If the user cleared the box, also clear the stored symbol so we don't snap back to a ticker.
+    if symbol:
+        st.session_state["ticker_symbol"] = symbol
+    else:
+        st.session_state["ticker_symbol"] = ""
     keyword_text = st.text_input("Keywords (comma separated)", value="guidance, investigation")
 
     col_a, col_b = st.columns(2)
@@ -105,7 +119,10 @@ with st.sidebar:
     run = st.button("Search", type="primary", use_container_width=True)
 
     st.divider()
-    st.caption(f"Ticker list: NASDAQ listings (refreshed daily). Keywords &lt;{MIN_KEYWORD_LEN} chars ignored (GDELT).")
+    st.caption(
+        f"Ticker list: NASDAQ listings (refreshed daily). "
+        f"You can always use any text you type. Keywords &lt;{MIN_KEYWORD_LEN} chars ignored (GDELT)."
+    )
 
 
 if not run:
