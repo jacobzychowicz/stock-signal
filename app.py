@@ -108,9 +108,23 @@ with st.sidebar:
 
     col_a, col_b = st.columns(2)
     with col_a:
-        days = st.number_input("Days back", min_value=0, max_value=60, value=5, step=1)
+        days = st.number_input(
+            "Days back",
+            min_value=0,
+            max_value=60,
+            value=5,
+            step=1,
+            help="How many days of history to search in GDELT (0 = all available). Higher values can return more articles but may be less focused on recent news.",
+        )
     with col_b:
-        limit = st.number_input("Limit", min_value=1, max_value=MAX_RECORDS, value=40, step=5)
+        limit = st.number_input(
+            "Limit",
+            min_value=1,
+            max_value=MAX_RECORDS,
+            value=40,
+            step=5,
+            help=f"Maximum number of articles to fetch from GDELT (1–{MAX_RECORDS}). Lower = faster and fewer API calls; higher = broader coverage but slightly higher chance of rate limiting.",
+        )
 
     english_only = st.toggle("English only", value=True)
     auto_expand = st.toggle("Auto-expand short tickers", value=True, help="If GDELT complains the phrase is too short, retry using the Yahoo Finance company name.")
@@ -169,11 +183,6 @@ with st.spinner("Fetching articles..."):
             st.stop()
 
 st.subheader("Results")
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Articles", f"{len(articles)}")
-col2.metric("Days back", f"{int(days)}")
-col3.metric("Updated", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
 if not articles:
     st.warning("No articles found. Try increasing **Days back**, widening keywords, or using the full company name.")
