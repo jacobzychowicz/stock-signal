@@ -16,4 +16,3 @@ def print_articles(articles: list[dict[str, str | None]]) -> None:
         print(f"[{idx}] {title}")
         print(f"    Source: {source} | Date: {date} | Lang: {lang}")
         print(f"    URL: {url}\n")
-

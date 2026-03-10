@@ -133,4 +133,3 @@ def fetch_articles(
             }
         )
     return results
-

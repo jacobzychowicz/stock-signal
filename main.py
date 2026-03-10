@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from stock_news.cli import main
+from stocksignal.cli import main
 
 
 if __name__ == "__main__":

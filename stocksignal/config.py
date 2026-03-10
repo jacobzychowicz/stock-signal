@@ -83,4 +83,3 @@ CUSTOM_OPTION_LABEL = "— Type or search —"
 # Full ticker list: CSV with columns Symbol, Security Name (or similar)
 # NASDAQ listings from GitHub datasets; fallback to POPULAR_TICKERS if fetch fails
 TICKER_LIST_CSV_URL = "https://raw.githubusercontent.com/datasets/nasdaq-listings/main/data/nasdaq-listed.csv"
-

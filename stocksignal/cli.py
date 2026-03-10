@@ -97,4 +97,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print_articles(articles)
     return 0
-

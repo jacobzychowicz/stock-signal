@@ -33,4 +33,3 @@ def build_query(symbol: str, keywords: Sequence[str] | None, english_only: bool 
         parts.append("sourcelang:english")
 
     return " AND ".join(parts)
-

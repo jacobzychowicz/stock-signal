@@ -44,4 +44,3 @@ def normalize_for_query(keywords: Sequence[str] | None) -> list[str]:
         return []
     normalized = [_normalize_term(k) for k in keywords]
     return [k for k in normalized if k]
-

@@ -6,12 +6,12 @@ import pandas as pd
 import streamlit as st
 from streamlit_searchbox import st_searchbox
 
-from stock_news.config import MAX_RECORDS, MIN_KEYWORD_LEN
-from stock_news.gdelt import fetch_articles
-from stock_news.keywords import normalize_keywords
-from stock_news.sentiment import aggregate_sentiment, score_articles
-from stock_news.symbols import expand_symbol_to_company_name
-from stock_news.ticker_list import filter_tickers, load_ticker_list_from_source
+from stocksignal.config import MAX_RECORDS, MIN_KEYWORD_LEN
+from stocksignal.gdelt import fetch_articles
+from stocksignal.keywords import normalize_keywords
+from stocksignal.sentiment import aggregate_sentiment, score_articles
+from stocksignal.symbols import expand_symbol_to_company_name
+from stocksignal.ticker_list import filter_tickers, load_ticker_list_from_source
 
 
 st.set_page_config(

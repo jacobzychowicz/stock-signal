@@ -86,4 +86,3 @@ def expand_symbol_to_company_name(symbol: str) -> str | None:
         if name:
             return str(name).strip()
     return None
-
