@@ -26,7 +26,6 @@ https://stocksignalx.streamlit.app/
 
 <img src="screenshot.png" width="900" alt="StockSignal dashboard">
 
-*Add a `screenshot.png` image to the project root to display the app preview here.*
 
 ---
 
