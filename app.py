@@ -20,6 +20,11 @@ st.set_page_config(
     layout="wide",
 )
 
+# Initialize keyword_input in session state so we can update it from example buttons
+# without conflicting with the widget (do not pass value= when using key=)
+if "keyword_input" not in st.session_state:
+    st.session_state["keyword_input"] = "guidance, investigation"
+
 
 def _format_seen_date(raw: str | None) -> str:
     """Convert GDELT seendate (e.g. 20260309T184500Z) to human-readable."""
@@ -158,7 +163,6 @@ with st.sidebar:
         st.session_state["ticker_symbol"] = ""
     keyword_text = st.text_input(
         "Keywords (comma separated)",
-        value=st.session_state.get("keyword_input", "guidance, investigation"),
         key="keyword_input",
     )
 
