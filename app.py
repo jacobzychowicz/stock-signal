@@ -82,6 +82,9 @@ st.markdown(
 <style>
   /* Hide Streamlit menu and footer (keep header so mobile sidebar works) */
   #MainMenu, footer { visibility: hidden; }
+  /* Hide Streamlit header branding / toolbar but keep the sidebar toggle */
+  header [data-testid="stToolbar"] { display: none !important; }
+  header .stAppHeaderBranding { display: none !important; }
   footer { position: fixed; bottom: 0; left: 0; right: 0; }
   /* Keep layout; hide the elements only */
   .block-container { padding-top: 1.5rem; padding-bottom: 2.5rem; max-width: 100%; }
