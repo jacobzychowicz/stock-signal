@@ -80,8 +80,8 @@ def _cached_fetch(
 st.markdown(
     """
 <style>
-  /* Hide Streamlit branding and top-left UI on deployed app */
-  #MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; }
+  /* Hide Streamlit menu and footer (keep header so mobile sidebar works) */
+  #MainMenu, footer { visibility: hidden; }
   footer { position: fixed; bottom: 0; left: 0; right: 0; }
   /* Keep layout; hide the elements only */
   .block-container { padding-top: 1.5rem; padding-bottom: 2.5rem; max-width: 100%; }
