@@ -2,6 +2,10 @@
 
 Search recent news for any stock or company, with optional **sentiment analysis** (VADER). Uses the [GDELT 2.1 Doc API](https://blog.gdeltproject.org/gdelt-doc-2-1-api-debuts/).
 
+## Live demo
+
+`https://stocksignalx.streamlit.app/`
+
 ## Features
 
 - **Ticker search** — Autocomplete from 5,000+ NASDAQ symbols; type any ticker or company name.
