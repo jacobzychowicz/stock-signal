@@ -5,7 +5,7 @@ import random
 import time
 from typing import Any, Sequence
 
-from .config import GDELT_URL, MAX_RECORDS
+from .config import GDELT_TIMEOUT, GDELT_URL, MAX_RECORDS
 from .query import build_query
 
 
@@ -61,7 +61,9 @@ def fetch_articles(
     # GDELT may rate-limit. Retry a few times with backoff, respecting Retry-After if present.
     for attempt in range(4):
         try:
-            response = requests.get(GDELT_URL, params=params, headers=headers, timeout=10)
+            response = requests.get(
+                GDELT_URL, params=params, headers=headers, timeout=GDELT_TIMEOUT
+            )
             if response.status_code == 429:
                 retry_after = _parse_retry_after_seconds(response.headers.get("Retry-After"))
                 base = retry_after if retry_after is not None else (2**attempt)

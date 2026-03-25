@@ -1,4 +1,6 @@
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
+# (connect, read) seconds. GDELT often needs 30s+ to return JSON; 10s read causes frequent timeouts.
+GDELT_TIMEOUT = (15, 120)
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 
 MAX_RECORDS = 250
